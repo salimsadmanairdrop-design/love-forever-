@@ -55,7 +55,7 @@ button:hover { transform: scale(1.15); }
 .slider {
   width: 90vw;
   max-width: 380px;
-  height: 70vh;  /* বড় + অ্যাডাপটিভ */
+  height: 70vh;
   max-height: 650px;
   border-radius: 45px;
   overflow: hidden;
@@ -63,32 +63,20 @@ button:hover { transform: scale(1.15); }
   box-shadow: 0 0 100px rgba(255,255,255,.9);
   margin: 15px auto;
   display: flex;
-  justify-content: center;  /* হরাইজন্টাল সেন্টার */
-  align-items: center;      /* ভার্টিকাল সেন্টার */
-  background: rgba(0,0,0,0.1); /* খালি জায়গা সুন্দর */
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.1);
 }
 .slider img {
   width: 100%;
   height: 100%;
-  object-fit: contain;        /* পুরো ছবি দেখাবে */
-  object-position: center center;  /* পুরোপুরি মাঝখানে */
+  object-fit: contain;
+  object-position: center center;
   opacity: 0;
-  transform: scale(1.05);
-  transition: opacity 2s, transform 2s;
+  transition: opacity 1.5s ease-in-out;
 }
 .slider img.active {
   opacity: 1;
-  transform: scale(1);
-}
-
-/* অ্যানিমেশন */
-.slider img:nth-child(1).active { transform: scale(1.15) !important; transition: transform 4s ease-in-out; }
-.slider img:nth-child(2).active { animation: floatPhoto 7s infinite ease-in-out; }
-
-@keyframes floatPhoto {
-  0%   { transform: translateY(0) scale(1); }
-  50%  { transform: translateY(-40px) scale(1.1); }
-  100% { transform: translateY(0) scale(1); }
 }
 
 .float {
@@ -110,7 +98,7 @@ button:hover { transform: scale(1.15); }
 }
 @keyframes fall {
   from { top:-60px; opacity:1; }
-  to   { top:120vh; opacity:0; }
+  to { top:120vh; opacity:0; }
 }
 .firework {
   position: fixed;
@@ -174,7 +162,7 @@ button:hover { transform: scale(1.15); }
     <img src="tasnim3.jpg">
   </div>
   <p style="margin-top:15px;">My favorite view 💖</p>
-  <button id="btnPhotos">Forever 🤍</button>
+  <button id="btnPhotos">Next Photo ❤️</button>
 </section>
 
 <section id="final">
@@ -189,7 +177,6 @@ button:hover { transform: scale(1.15); }
 </div>
 
 <script>
-// ... (আগের স্ক্রিপ্ট অংশ অপরিবর্তিত রাখলাম, শুধু CSS চেঞ্জ হয়েছে)
 const music = document.getElementById('music');
 const sections = document.querySelectorAll('section');
 const finalOverlay = document.getElementById('finalOverlay');
@@ -197,7 +184,7 @@ const finalOverlay = document.getElementById('finalOverlay');
 const btnWelcome = document.getElementById('btnWelcome');
 const btnLetter  = document.getElementById('btnLetter');
 const btnCounter = document.getElementById('btnCounter');
-const btnPhotos  = document.getElementById('btnPhotos');
+const btnPhotos = document.getElementById('btnPhotos');
 const btnFinal   = document.getElementById('btnFinal');
 
 function showSection(id) {
@@ -209,8 +196,30 @@ function showSection(id) {
 btnWelcome.onclick = () => showSection('letter');
 btnLetter.onclick  = () => showSection('counter');
 btnCounter.onclick = () => showSection('photos');
-btnPhotos.onclick  = () => showSection('final');
 btnFinal.onclick   = finalMagic;
+
+const slides = document.querySelectorAll(".slider img");
+let currentIndex = 0;
+
+// Initial active
+slides[currentIndex].classList.add('active');
+
+btnPhotos.onclick = () => {
+  // Hide current
+  slides[currentIndex].classList.remove('active');
+  
+  // Next index
+  currentIndex = (currentIndex + 1) % slides.length;
+  
+  // Show next
+  slides[currentIndex].classList.add('active');
+  
+  // If last photo, change button text and next click goes to final
+  if (currentIndex === slides.length - 1) {
+    btnPhotos.textContent = "Go to Forever 💍";
+    btnPhotos.onclick = () => showSection('final');
+  }
+};
 
 // Counter
 const startDate = new Date("2025-02-13T11:14:00");
@@ -223,15 +232,6 @@ setInterval(() => {
   const s = Math.floor(d / 1000) % 60;
   document.getElementById("time").innerHTML = `${days} Days ${h}h ${m}m ${s}s ❤️`;
 }, 1000);
-
-// Slider
-let slides = document.querySelectorAll(".slider img");
-let current = 0;
-setInterval(() => {
-  slides[current].classList.remove('active');
-  current = (current + 1) % slides.length;
-  slides[current].classList.add('active');
-}, 3500);
 
 // Floating hearts
 setInterval(() => {
@@ -277,4 +277,4 @@ function finalMagic() {
 }
 </script>
 </body>
-    </html>
+  </html>
