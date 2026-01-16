@@ -14,17 +14,15 @@ body {
 }
 section {
   min-height: 100vh;
-  display: none;           /* default hidden */
+  display: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 24px;
+  padding: 16px;
   position: relative;
   z-index: 2;
 }
-section.active {
-  display: flex;           /* only active one shows */
-}
+section.active { display: flex; }
 h1, h2 { text-shadow: 0 0 30px rgba(255,255,255,.9); }
 button {
   padding: 15px 38px;
@@ -55,26 +53,38 @@ button:hover { transform: scale(1.15); }
 .heart { font-size: 80px; animation: heartbeat 1s infinite; }
 @keyframes heartbeat { 0%{transform:scale(1);} 30%{transform:scale(1.5);} 60%{transform:scale(1);} }
 .slider {
-  width: 300px;
-  height: 420px;
-  border-radius: 35px;
+  width: 90vw;                  /* মোবাইলে প্রায় full width */
+  max-width: 380px;             /* ডেস্কটপে খুব বড় না হয় */
+  height: 70vh;                 /* স্ক্রিনের ৭০% হাইট, অ্যাডাপটিভ */
+  max-height: 620px;            /* ম্যাক্স লিমিট */
+  border-radius: 45px;
   overflow: hidden;
   position: relative;
-  box-shadow: 0 0 60px rgba(255,255,255,.9);
+  box-shadow: 0 0 90px rgba(255,255,255,.9);
+  margin: 20px auto;
 }
 .slider img {
   position: absolute;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;          /* পুরো ছবি দেখাবে */
+  object-position: top center;  /* উপর থেকে শুরু করে মাঝখানে অ্যালাইন */
   opacity: 0;
-  transform: scale(1.1);
+  transform: scale(1.05);
   transition: opacity 2s, transform 2s;
 }
-.slider img.active {
-  opacity: 1;
-  transform: scale(1);
+.slider img.active { opacity: 1; transform: scale(1); }
+
+/* অ্যানিমেশন */
+.slider img:nth-child(1).active { transform: scale(1.15) !important; transition: transform 4s ease-in-out; }
+.slider img:nth-child(2).active { animation: floatPhoto 7s infinite ease-in-out; }
+
+@keyframes floatPhoto {
+  0%   { transform: translateY(0) scale(1); }
+  50%  { transform: translateY(-40px) scale(1.1); }
+  100% { transform: translateY(0) scale(1); }
 }
+
 .float {
   position: fixed;
   pointer-events: none;
@@ -85,18 +95,6 @@ button:hover { transform: scale(1.15); }
   from { transform: translateY(0) scale(.6); opacity: 0; }
   10%  { opacity: 1; }
   to   { transform: translateY(-130vh) scale(1.1); opacity: 0; }
-}
-.butterfly {
-  position: fixed;
-  width: 55px;
-  animation: butterfly 18s ease-in-out infinite;
-  z-index: 1;
-}
-@keyframes butterfly {
-  0%   { left:-70px; top:60%; }
-  30%  { left:30%;   top:30%; }
-  60%  { left:60%;   top:50%; }
-  100% { left:120%;  top:25%; }
 }
 .rose {
   position: fixed;
@@ -116,10 +114,7 @@ button:hover { transform: scale(1.15); }
   animation: explode 1.4s ease-out forwards;
 }
 @keyframes explode {
-  to {
-    transform: translate(var(--x), var(--y));
-    opacity: 0;
-  }
+  to { transform: translate(var(--x),var(--y)); opacity: 0; }
 }
 #finalOverlay {
   position: fixed;
@@ -134,10 +129,7 @@ button:hover { transform: scale(1.15); }
   transition: opacity 1s;
   pointer-events: none;
 }
-#finalOverlay.show {
-  opacity: 1;
-  pointer-events: auto;
-}
+#finalOverlay.show { opacity: 1; pointer-events: auto; }
 #finalOverlay h1 { font-size: 40px; margin-bottom: 20px; }
 </style>
 </head>
@@ -191,7 +183,7 @@ button:hover { transform: scale(1.15); }
 </div>
 
 <script>
-// Elements
+// Elements...
 const music = document.getElementById('music');
 const sections = document.querySelectorAll('section');
 const finalOverlay = document.getElementById('finalOverlay');
@@ -202,29 +194,23 @@ const btnCounter = document.getElementById('btnCounter');
 const btnPhotos  = document.getElementById('btnPhotos');
 const btnFinal   = document.getElementById('btnFinal');
 
-// Show section function
 function showSection(id) {
   sections.forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(id);
-  if (target) target.classList.add('active');
-  music.play().catch(() => {}); // autoplay may need user interaction first time
+  document.getElementById(id)?.classList.add('active');
+  music.play().catch(() => {});
 }
 
-// Button handlers
 btnWelcome.onclick = () => showSection('letter');
 btnLetter.onclick  = () => showSection('counter');
 btnCounter.onclick = () => showSection('photos');
 btnPhotos.onclick  = () => showSection('final');
-btnFinal.onclick   = () => finalMagic();
+btnFinal.onclick   = finalMagic;
 
-// Counter (started Feb 13, 2025)
+// Counter...
 const startDate = new Date("2025-02-13T11:14:00");
 setInterval(() => {
   const d = new Date() - startDate;
-  if (d < 0) {
-    document.getElementById("time").innerHTML = "Counting moments to forever ❤️";
-    return;
-  }
+  if (d < 0) return document.getElementById("time").innerHTML = "Counting moments to forever ❤️";
   const days = Math.floor(d / 86400000);
   const h = Math.floor(d / 3600000) % 24;
   const m = Math.floor(d / 60000) % 60;
@@ -232,7 +218,7 @@ setInterval(() => {
   document.getElementById("time").innerHTML = `${days} Days ${h}h ${m}m ${s}s ❤️`;
 }, 1000);
 
-// Photo slider
+// Slider...
 let slides = document.querySelectorAll(".slider img");
 let current = 0;
 setInterval(() => {
@@ -241,7 +227,7 @@ setInterval(() => {
   slides[current].classList.add('active');
 }, 3500);
 
-// Floating hearts
+// Floating hearts...
 setInterval(() => {
   let h = document.createElement('div');
   h.innerHTML = "💕";
@@ -254,43 +240,35 @@ setInterval(() => {
   setTimeout(() => h.remove(), 18000);
 }, 400);
 
-// Falling roses
+// Falling roses...
 setInterval(() => {
   let r = document.createElement('img');
-  r.src = 'https://i.ibb.co/F4s7v3t/rose.png';
+  r.src = 'https://static.vecteezy.com/system/resources/thumbnails/044/771/653/small/pink-rose-petals-falling-gracefully-free-png.png';  // আরো সুন্দর PNG
   r.className = 'rose';
   r.style.left = Math.random()*100 + 'vw';
   document.body.appendChild(r);
   setTimeout(() => r.remove(), 13000);
 }, 700);
 
-// Butterfly
-let b = document.createElement('img');
-b.src = 'https://i.ibb.co/9WVb4sv/butterfly.png';
-b.className = 'butterfly';
-document.body.appendChild(b);
-
-// Final magic
+// Final magic...
 function finalMagic() {
   btnFinal.style.display = 'none';
   finalOverlay.classList.add('show');
-  
   const interval = setInterval(() => {
-    for(let j = 0; j < 25; j++) {
+    for(let j=0; j<25; j++) {
       let f = document.createElement('div');
       f.className = 'firework';
       f.style.left = Math.random()*window.innerWidth + 'px';
       f.style.top = Math.random()*window.innerHeight/2 + 'px';
       f.style.background = `hsl(${Math.random()*360},100%,70%)`;
-      f.style.setProperty('--x', (Math.random()*400 - 200) + 'px');
-      f.style.setProperty('--y', (Math.random()*400 - 200) + 'px');
+      f.style.setProperty('--x', (Math.random()*400-200)+'px');
+      f.style.setProperty('--y', (Math.random()*400-200)+'px');
       document.body.appendChild(f);
       setTimeout(() => f.remove(), 1400);
     }
   }, 400);
-  
   setTimeout(() => clearInterval(interval), 5000);
 }
 </script>
 </body>
-</html>
+  </html>
